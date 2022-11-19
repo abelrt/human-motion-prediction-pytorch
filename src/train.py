@@ -100,21 +100,28 @@ def train(args):
         # Forward pass
         preds = model(encoder_inputs, decoder_inputs, device)
 
-        # Loss: Mean Squared Errors
-        step_loss = (preds - decoder_outputs)**2
-        step_loss = step_loss.mean()
+        losses_list = []
+        for pred in preds:
+            # Loss: Mean Squared Errors
+            step_loss = (pred - decoder_outputs)**2
+            step_loss = step_loss.mean()
+            losses_list.append(step_loss)
+
+        losses_list = torch.tensor(losses_list)
+
+        final_loss = losses_list.sort()[0]
 
         # Backpropagation
-        step_loss.backward()
+        final_loss.backward()
 
         # Gradient descent step
         optimiser.step()
 
-        step_loss = step_loss.cpu().data.numpy()
+        final_loss = final_loss.cpu().data.numpy()
 
         if current_step % 10 == 0:
-            logging.info(f'step {current_step:04}; step_loss: {step_loss:.4f}')
-        loss += step_loss / args.test_every
+            logging.info(f'step {current_step:04}; step_loss: {final_loss:.4f}')
+        loss += final_loss / args.test_every
         current_step += 1
 
         # === step decay ===
@@ -133,8 +140,16 @@ def train(args):
                 test_set, actions, device)
             preds = model(encoder_inputs, decoder_inputs, device)
 
-            step_loss = (preds - decoder_outputs)**2
-            val_loss = step_loss.mean()
+            losses_list = []
+            for pred in preds:
+                # Loss: Mean Squared Errors
+                step_loss = (pred - decoder_outputs)**2
+                step_loss = step_loss.mean()
+                losses_list.append(step_loss)
+
+            losses_list = torch.tensor(losses_list)
+
+            val_loss = losses_list.sort()[0]
 
             print('\n=================================\n'
                   f'Global step:         {current_step}\n'

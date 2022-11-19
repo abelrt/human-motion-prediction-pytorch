@@ -96,30 +96,37 @@ class MotionPredictor(nn.Module):
             # Apply dropout in training
             state = F.dropout(state, self.dropout, training=self.training)
 
-        outputs = []
-        prev = None
+        output_list = []
 
-        # Decoding, sequentially
-        for i, inp in enumerate(decoder_inputs):
-            # Use teacher forcing?
-            if prev is not None:
-                inp = loop_function(prev, i)
-            #inp = inp.detach()
+        possible_path_number = 10
 
-            state = self.cell(inp, state)
+        for path in range(possible_path_number):
+            state += torch.rndn(state.shape)
+            outputs = []
+            prev = None
+            # Decoding, sequentially
+            for i, inp in enumerate(decoder_inputs):
+                # Use teacher forcing?
+                if prev is not None:
+                    inp = loop_function(prev, i)
+                #inp = inp.detach()
 
-            # Output is seen as a residual to the previous value
-            output = inp + self.fc1(
-                F.dropout(state, self.dropout, training=self.training))
-            outputs.append(output.view([1, batch_size, self.input_size]))
-            prev = output
+                state = self.cell(inp, state)
 
-        outputs = torch.cat(outputs, 0)
+                # Output is seen as a residual to the previous value
+                output = inp + self.fc1(
+                    F.dropout(state, self.dropout, training=self.training))
+                outputs.append(output.view([1, batch_size, self.input_size]))
+                prev = output
+            
+            outputs = torch.cat(outputs, 0)
 
-        # Size should be batch_size x target_seq_len x input_size
-        outputs = torch.transpose(outputs, 0, 1)
+            # Size should be batch_size x target_seq_len x input_size
+            outputs = torch.transpose(outputs, 0, 1)
 
-        return outputs
+            output_list.append(outputs)
+
+        return output_list
 
     def get_batch(self, data, actions, device):
         """Get a random batch of data from the specified bucket, prepare
