@@ -1,6 +1,7 @@
 """Code for training an RNN for motion prediction."""
 
 import logging
+import sys
 import os
 
 import matplotlib.pyplot as plt
@@ -8,10 +9,16 @@ import numpy as np
 import torch
 import torch.optim as optim
 
-from parsers import training_parser
-from utils.data_utils import read_all_data
-from utils.data_utils import define_actions
-from models.motionpredictor import MotionPredictor
+IN_COLAB = 'google.colab' in sys.modules
+if not IN_COLAB:
+    from parsers import training_parser
+    from utils.data_utils import read_all_data
+    from utils.data_utils import define_actions
+    from models.motionpredictor import MotionPredictor
+else:
+    from src.utils.data_utils import read_all_data
+    from src.utils.data_utils import define_actions
+    from src.models.motionpredictor import MotionPredictor
 
 
 def train(args):
@@ -22,6 +29,31 @@ def train(args):
     args : argparse.Namespace
         Arguments from the parser.
     """
+
+    # Set logger
+    if args.log_file == '':
+        logging.basicConfig(format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+    else:
+        logging.basicConfig(filename=args.log_file,
+                            format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+
+    # Set directory
+    train_dir = os.path.normpath(
+        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
+                     f'iterations_{args.iterations}', f'size_{args.size}',
+                     f'lr_{args.learning_rate}'))
+
+    # Detect device
+    if torch.cuda.is_available():
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    logging.info('Train dir: ' + train_dir)
+    os.makedirs(train_dir, exist_ok=True)
 
     # Set of actions
     actions = define_actions(args.action)
@@ -132,31 +164,6 @@ def train(args):
 if __name__ == '__main__':
     # Load parser
     args = training_parser()
-
-    # Set logger
-    if args.log_file == '':
-        logging.basicConfig(format='%(levelname)s: %(message)s',
-                            level=args.log_level)
-    else:
-        logging.basicConfig(filename=args.log_file,
-                            format='%(levelname)s: %(message)s',
-                            level=args.log_level)
-
-    # Set directory
-    train_dir = os.path.normpath(
-        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
-                     f'iterations_{args.iterations}', f'size_{args.size}',
-                     f'lr_{args.learning_rate}'))
-
-    # Detect device
-    if torch.cuda.is_available():
-        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
-    else:
-        logging.info('cpu')
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    logging.info('Train dir: ' + train_dir)
-    os.makedirs(train_dir, exist_ok=True)
 
     # Training function
     train(args)

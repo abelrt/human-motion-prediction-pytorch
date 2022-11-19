@@ -6,11 +6,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 
-from utils.viz import Ax3DPose
-from utils.forward_kinematics import kinematic_tree_variables
-from utils.forward_kinematics import revert_coordinate_space
-from utils.forward_kinematics import fkl
-from parsers import animation_parser
+IN_COLAB = 'google.colab' in sys.modules
+if not IN_COLAB:
+    from utils.viz import Ax3DPose
+    from utils.forward_kinematics import kinematic_tree_variables
+    from utils.forward_kinematics import revert_coordinate_space
+    from utils.forward_kinematics import fkl
+    from parsers import animation_parser
+else:
+    from src.utils.viz import Ax3DPose
+    from src.utils.forward_kinematics import kinematic_tree_variables
+    from src.utils.forward_kinematics import revert_coordinate_space
+    from src.utils.forward_kinematics import fkl
 
 
 def animate(args):

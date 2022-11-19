@@ -5,18 +5,27 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import h5py
 import torch
-import torch.optim as optim
+import h5py
 
-from parsers import testing_parser
-from utils.data_utils import read_all_data
-from utils.data_utils import define_actions
-from utils.data_utils import rotmat_to_expmap
-from utils.data_utils import expmap_to_rotmat
-from utils.data_utils import unnormalize_data
-from utils.data_utils import revert_output_format
-from utils.evaluation import evaluate_batch
+IN_COLAB = 'google.colab' in sys.modules
+if not IN_COLAB:
+    from parsers import testing_parser
+    from utils.data_utils import read_all_data
+    from utils.data_utils import define_actions
+    from utils.data_utils import rotmat_to_expmap
+    from utils.data_utils import expmap_to_rotmat
+    from utils.data_utils import unnormalize_data
+    from utils.data_utils import revert_output_format
+    from utils.evaluation import evaluate_batch
+else:
+    from src.utils.data_utils import read_all_data
+    from src.utils.data_utils import define_actions
+    from src.utils.data_utils import rotmat_to_expmap
+    from src.utils.data_utils import expmap_to_rotmat
+    from src.utils.data_utils import unnormalize_data
+    from src.utils.data_utils import revert_output_format
+    from src.utils.evaluation import evaluate_batch
 
 
 def get_srnn_gts(actions,
@@ -86,10 +95,36 @@ def test(args):
         Arguments from the parser.
     """
 
+    # Set logger
+    if args.log_file == '':
+        logging.basicConfig(format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+    else:
+        logging.basicConfig(filename=args.log_file,
+                            format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+
+    # Set directory
+    train_dir = os.path.normpath(
+        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
+                     f'iterations_{args.iterations}', f'size_{args.size}',
+                     f'lr_{args.learning_rate}'))
+
+    # Detect device
+    if torch.cuda.is_available():
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    logging.info('Test dir: ' + train_dir)
+    os.makedirs(train_dir, exist_ok=True)
+
+    # Set of actions
     actions = define_actions(args.action)
     nsamples = 8
 
-    # === Create the model ===
+    # Create the model
     logging.info(f'Creating a model with {args.size} units.')
     sampling = True
     logging.info('Loading model')
@@ -173,30 +208,5 @@ if __name__ == "__main__":
     # Load parser
     args = testing_parser()
 
-    # Set logger
-    if args.log_file == '':
-        logging.basicConfig(format='%(levelname)s: %(message)s',
-                            level=args.log_level)
-    else:
-        logging.basicConfig(filename=args.log_file,
-                            format='%(levelname)s: %(message)s',
-                            level=args.log_level)
-
-    # Set directory
-    train_dir = os.path.normpath(
-        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
-                     f'iterations_{args.iterations}', f'size_{args.size}',
-                     f'lr_{args.learning_rate}'))
-
-    # Detect device
-    if torch.cuda.is_available():
-        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
-    else:
-        logging.info('cpu')
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    logging.info('Train dir: ' + train_dir)
-    os.makedirs(train_dir, exist_ok=True)
-
     # Testing function
-    test()
+    test(args)
