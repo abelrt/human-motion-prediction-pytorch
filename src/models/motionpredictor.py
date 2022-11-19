@@ -101,7 +101,7 @@ class MotionPredictor(nn.Module):
         possible_path_number = 10
 
         for path in range(possible_path_number):
-            input_state += torch.randn(state.shape)
+            input_state = state + torch.randn(state.shape)
             outputs = []
             prev = None
             # Decoding, sequentially
