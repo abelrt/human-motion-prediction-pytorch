@@ -195,13 +195,21 @@ def test(args):
         # Compute and save the errors here
         mean_errors_batch = evaluate_batch(srnn_pred_expmap,
                                            srnn_gts_euler[action])
+
         logging.info(
             'Mean error for test data along the horizon on action {}: {}'.
             format(action, mean_errors_batch))
+        print('Mean error for test data along the horizon on action {}: {}'.
+              format(action, mean_errors_batch))
+
         logging.info(
             'Mean error for test data at horizon {} on action {}: {}'.format(
                 args.horizon_test_step, action,
                 mean_errors_batch[args.horizon_test_step]))
+        print('Mean error for test data at horizon {} on action {}: {}'.format(
+            args.horizon_test_step, action,
+            mean_errors_batch[args.horizon_test_step]))
+
         with h5py.File(SAMPLES_FNAME, 'a') as hf:
             node_name = f'mean_{action}_error'
             hf.create_dataset(node_name, data=mean_errors_batch)
