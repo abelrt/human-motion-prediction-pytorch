@@ -2,8 +2,13 @@
 
 import numpy as np
 
-from utils.data_utils import rotmat_to_euler
-from utils.data_utils import expmap_to_rotmat
+IN_COLAB = 'google.colab' in sys.modules
+if not IN_COLAB:
+    from utils.data_utils import rotmat_to_euler
+    from utils.data_utils import expmap_to_rotmat
+else:
+    from src.utils.data_utils import rotmat_to_euler
+    from src.utils.data_utils import expmap_to_rotmat
 
 
 def evaluate(eulerchannels_pred, eulerchannels_gt):

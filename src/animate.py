@@ -38,7 +38,7 @@ def create_gif(input_dir, output_dir, filename='animation.gif'):
 
     # Load all the frames
     images = []
-    for file_name in os.listdir(input_dir):
+    for file_name in sorted(os.listdir(input_dir)):
         if file_name.endswith('.png'):
             file_path = os.path.join(input_dir, file_name)
             images.append(imageio.imread(file_path))
@@ -63,6 +63,10 @@ def animate(args):
     args : argparse.Namespace
         Arguments from the parser.
     """
+
+    # If output folder does not exist, create it
+    if not os.path.exists(args.imgs_dir):
+        os.makedirs(args.imgs_dir)
 
     # Logging
     logging.basicConfig(format='%(levelname)s: %(message)s', level=20)
@@ -105,19 +109,11 @@ def animate(args):
     for i in range(nframes_gt):
         ob.update(xyz_gt[i, :], lcolor='#ff0000', rcolor='#0000ff')
         fig.savefig(os.path.join(args.imgs_dir, f'gt_{i:02d}.png'))
-        plt.show(block=False)
-        plt.title('Observations')
-        fig.canvas.draw()
-        plt.pause(0.01)
 
     # Plot the prediction
     for i in range(nframes_pred):
         ob.update(xyz_pred[i, :], lcolor='#9b59b6', rcolor='#2ecc71')
         fig.savefig(os.path.join(args.imgs_dir, f'pred_{i:02d}.png'))
-        plt.show(block=False)
-        plt.title('Predictions')
-        fig.canvas.draw()
-        plt.pause(0.01)
 
 
 if __name__ == '__main__':

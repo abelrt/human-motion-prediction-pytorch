@@ -4,8 +4,13 @@ import copy
 
 import numpy as np
 
-from utils.data_utils import expmap_to_rotmat
-from utils.data_utils import rotmat_to_expmap
+IN_COLAB = 'google.colab' in sys.modules
+if not IN_COLAB:
+    from utils.data_utils import expmap_to_rotmat
+    from utils.data_utils import rotmat_to_expmap
+else:
+    from src.utils.data_utils import expmap_to_rotmat
+    from src.utils.data_utils import rotmat_to_expmap
 
 
 def fkl(angles, parent, offset, rot_ind, expmap_ind):
