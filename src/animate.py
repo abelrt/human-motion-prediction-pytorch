@@ -47,6 +47,10 @@ def create_gif(input_dir, output_dir, filename='animation.gif'):
     for _ in range(10):
         images.append(imageio.imread(file_path))
 
+    # If folder does not exist, create it
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     # Save them as frames into a gif
     imageio.mimsave(os.path.join(output_dir, filename), images, duration=0.03)
 
