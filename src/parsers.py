@@ -130,7 +130,7 @@ def training_parser_from_dict(dict_args):
         'learning_rate_decay_factor': 0.95,
         'learning_rate_step': 10000,
         'batch_size': 128,
-        'iterations': 1e5,
+        'iterations': int(1e5),
         'test_every': 100,
         'size': 512,
         'seq_length_in': 50,
@@ -257,7 +257,7 @@ def testing_parser_from_dict(dict_args):
     default_params = {
         'learning_rate': 0.00001,
         'batch_size': 128,
-        'iterations': 1e5,
+        'iterations': int(1e5),
         'size': 512,
         'seq_length_out': 10,
         'horizon_test_step': 25,
