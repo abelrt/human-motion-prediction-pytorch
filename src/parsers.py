@@ -286,11 +286,18 @@ def animation_parser():
 
     parser = argparse.ArgumentParser(
         description='Test RNN for human pose estimation')
+
     parser.add_argument('--id',
                         dest='sample_id',
                         help='Sample id.',
                         default=0,
                         type=int)
+
+    parser.add_argument('--imgs_dir',
+                        dest='imgs_dir',
+                        help='Imgages directory',
+                        default=os.path.normpath("./images/"),
+                        type=str)
 
     args = parser.parse_args()
     return args
@@ -310,7 +317,10 @@ def animation_parser_from_dict(dict_args):
         Arguments from the parser.
     """
 
-    default_params = {'sample_id': 0}
+    default_params = {
+        'sample_id': 0,
+        'imgs_dir': os.path.normpath('./images/')
+    }
 
     default_params.update(dict_args)
     args = Namespace(**default_params)

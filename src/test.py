@@ -121,7 +121,7 @@ def test(args):
         logging.info('cpu')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    logging.info('Test dir: ' + train_dir)
+    logging.info('Train dir: ' + train_dir)
     os.makedirs(train_dir, exist_ok=True)
 
     # Set of actions

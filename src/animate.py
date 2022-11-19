@@ -100,6 +100,7 @@ def animate(args):
     # First, plot the conditioning ground truth
     for i in range(nframes_gt):
         ob.update(xyz_gt[i, :], lcolor='#ff0000', rcolor='#0000ff')
+        fig.savefig(os.path.join(args.imgs_dir, f'gt_{i:02d}.png'))
         plt.show(block=False)
         plt.title('Observations')
         fig.canvas.draw()
@@ -108,6 +109,7 @@ def animate(args):
     # Plot the prediction
     for i in range(nframes_pred):
         ob.update(xyz_pred[i, :], lcolor='#9b59b6', rcolor='#2ecc71')
+        fig.savefig(os.path.join(args.imgs_dir, f'pred_{i:02d}.png'))
         plt.show(block=False)
         plt.title('Predictions')
         fig.canvas.draw()
