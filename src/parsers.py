@@ -1,7 +1,8 @@
 """Argument parsers for the command line interface."""
 
-import argparse
 import os
+import argparse
+from argparse import Namespace
 
 
 def training_parser():
@@ -96,11 +97,13 @@ def training_parser():
                         type=str)
 
     parser.add_argument('--log-level',
+                        dest='log_level',
                         type=int,
                         default=20,
                         help='Log level (default: 20)')
 
     parser.add_argument('--log-file',
+                        dest='log_file',
                         default='',
                         help='Log file (default: standard output)')
 
@@ -122,10 +125,25 @@ def training_parser_from_dict(dict_args):
         Arguments from the parser.
     """
 
-    args = training_parser()
+    default_params = {
+        'learning_rate': 0.00001,
+        'learning_rate_decay_factor': 0.95,
+        'learning_rate_step': 10000,
+        'batch_size': 128,
+        'iterations': 1e5,
+        'test_every': 100,
+        'size': 512,
+        'seq_length_in': 50,
+        'seq_length_out': 10,
+        'data_dir': os.path.normpath('./data/h3.6m/dataset'),
+        'train_dir': os.path.normpath('./experiments/'),
+        'action': 'all',
+        'log_level': 20,
+        'log_file': '',
+    }
 
-    for key, value in dict_args.items():
-        args.__dict__[key] = value
+    default_params.update(dict_args)
+    args = Namespace(**default_params)
 
     return args
 
@@ -208,11 +226,13 @@ def testing_parser():
                         type=int)
 
     parser.add_argument('--log-level',
+                        dest='log_level',
                         type=int,
                         default=20,
                         help='Log level (default: 20)')
 
     parser.add_argument('--log-file',
+                        dest='log_file',
                         default='',
                         help='Log file (default: standard output)')
 
@@ -234,10 +254,23 @@ def testing_parser_from_dict(dict_args):
         Arguments from the parser.
     """
 
-    args = testing_parser()
+    default_params = {
+        'learning_rate': 0.00001,
+        'batch_size': 128,
+        'iterations': 1e5,
+        'size': 512,
+        'seq_length_out': 10,
+        'horizon_test_step': 25,
+        'data_dir': os.path.normpath('./data/h3.6m/dataset'),
+        'train_dir': os.path.normpath('./experiments/'),
+        'action': 'all',
+        'load_model': 0,
+        'log_level': 20,
+        'log_file': '',
+    }
 
-    for key, value in dict_args.items():
-        args.__dict__[key] = value
+    default_params.update(dict_args)
+    args = Namespace(**default_params)
 
     return args
 
@@ -277,9 +310,9 @@ def animation_parser_from_dict(dict_args):
         Arguments from the parser.
     """
 
-    args = animation_parser()
+    default_params = {'sample_id': 0}
 
-    for key, value in dict_args.items():
-        args.__dict__[key] = value
+    default_params.update(dict_args)
+    args = Namespace(**default_params)
 
     return args
