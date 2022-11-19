@@ -43,7 +43,7 @@ cd data
 
 # Install gdown: pip install gdown
 gdown https://drive.google.com/uc?id=1hqE6GrWZTBjVzmbehUBO7NTrbEgDNqbH
-unzip h3.6m.zip
+unzip -q h3.6m.zip
 rm h3.6m.zip
 cd ..
 ```
