@@ -18,34 +18,6 @@ from utils.data_utils import unnormalize_data
 from utils.data_utils import revert_output_format
 from utils.evaluation import evaluate_batch
 
-# Load parser
-args = testing_parser()
-
-# Set logger
-if args.log_file == '':
-    logging.basicConfig(format='%(levelname)s: %(message)s',
-                        level=args.log_level)
-else:
-    logging.basicConfig(filename=args.log_file,
-                        format='%(levelname)s: %(message)s',
-                        level=args.log_level)
-
-# Set directory
-train_dir = os.path.normpath(
-    os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
-                 f'iterations_{args.iterations}', f'size_{args.size}',
-                 f'lr_{args.learning_rate}'))
-
-# Detect device
-if torch.cuda.is_available():
-    logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
-else:
-    logging.info('cpu')
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-logging.info('Train dir: ' + train_dir)
-os.makedirs(train_dir, exist_ok=True)
-
 
 def get_srnn_gts(actions,
                  model,
@@ -105,7 +77,7 @@ def get_srnn_gts(actions,
     return srnn_gts_euler
 
 
-def test(args=args):
+def test(args):
     """Sample predictions for srnn's seeds.
 
     Parameters
@@ -198,4 +170,33 @@ def test(args=args):
 
 
 if __name__ == "__main__":
+    # Load parser
+    args = testing_parser()
+
+    # Set logger
+    if args.log_file == '':
+        logging.basicConfig(format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+    else:
+        logging.basicConfig(filename=args.log_file,
+                            format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+
+    # Set directory
+    train_dir = os.path.normpath(
+        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
+                     f'iterations_{args.iterations}', f'size_{args.size}',
+                     f'lr_{args.learning_rate}'))
+
+    # Detect device
+    if torch.cuda.is_available():
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    logging.info('Train dir: ' + train_dir)
+    os.makedirs(train_dir, exist_ok=True)
+
+    # Testing function
     test()

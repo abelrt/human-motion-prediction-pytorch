@@ -12,11 +12,8 @@ from utils.forward_kinematics import revert_coordinate_space
 from utils.forward_kinematics import fkl
 from parsers import animation_parser
 
-# Load parser arguments
-args = animation_parser()
 
-
-def animate(args=args):
+def animate(args):
     """Animate the pose.
 
     Parameters
@@ -80,4 +77,8 @@ def animate(args=args):
 
 
 if __name__ == '__main__':
-    animate()
+    # Load parser arguments
+    args = animation_parser()
+
+    # Animation function
+    animate(args)

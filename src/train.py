@@ -13,36 +13,8 @@ from utils.data_utils import read_all_data
 from utils.data_utils import define_actions
 from models.motionpredictor import MotionPredictor
 
-# Load parser
-args = training_parser()
 
-# Set logger
-if args.log_file == '':
-    logging.basicConfig(format='%(levelname)s: %(message)s',
-                        level=args.log_level)
-else:
-    logging.basicConfig(filename=args.log_file,
-                        format='%(levelname)s: %(message)s',
-                        level=args.log_level)
-
-# Set directory
-train_dir = os.path.normpath(
-    os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
-                 f'iterations_{args.iterations}', f'size_{args.size}',
-                 f'lr_{args.learning_rate}'))
-
-# Detect device
-if torch.cuda.is_available():
-    logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
-else:
-    logging.info('cpu')
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-logging.info('Train dir: ' + train_dir)
-os.makedirs(train_dir, exist_ok=True)
-
-
-def train(args=args):
+def train(args):
     """Train a seq2seq model on human motion.
 
     Parameters
@@ -158,4 +130,33 @@ def train(args=args):
 
 
 if __name__ == '__main__':
-    train()
+    # Load parser
+    args = training_parser()
+
+    # Set logger
+    if args.log_file == '':
+        logging.basicConfig(format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+    else:
+        logging.basicConfig(filename=args.log_file,
+                            format='%(levelname)s: %(message)s',
+                            level=args.log_level)
+
+    # Set directory
+    train_dir = os.path.normpath(
+        os.path.join(args.train_dir, args.action, f'out_{args.seq_length_out}',
+                     f'iterations_{args.iterations}', f'size_{args.size}',
+                     f'lr_{args.learning_rate}'))
+
+    # Detect device
+    if torch.cuda.is_available():
+        logging.info(torch.cuda.get_device_name(torch.cuda.current_device()))
+    else:
+        logging.info('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    logging.info('Train dir: ' + train_dir)
+    os.makedirs(train_dir, exist_ok=True)
+
+    # Training function
+    train(args)
