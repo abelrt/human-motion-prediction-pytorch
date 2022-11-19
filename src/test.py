@@ -1,6 +1,7 @@
 """Code for training an RNN for motion prediction."""
 
 import logging
+import sys
 import os
 
 import matplotlib.pyplot as plt
@@ -30,6 +31,7 @@ else:
 
 def get_srnn_gts(actions,
                  model,
+                 device,
                  test_set,
                  data_mean,
                  data_std,
@@ -44,6 +46,8 @@ def get_srnn_gts(actions,
         A list of actions to get ground truths for.
     model: torch.nn.Module
         Training model we are using (we only use the "get_batch" method).
+    device : torch.device
+        Device to use for training.
     test_set: dict
         Dictionary with normalized training data.
     data_mean: np.array
@@ -126,7 +130,6 @@ def test(args):
 
     # Create the model
     logging.info(f'Creating a model with {args.size} units.')
-    sampling = True
     logging.info('Loading model')
     model = torch.load(train_dir + '/model_' + str(args.load_model))
     model.source_seq_len = 50
@@ -142,12 +145,13 @@ def test(args):
     # many times for evaluation in Euler Angles ===
     srnn_gts_expmap = get_srnn_gts(actions,
                                    model,
+                                   device,
                                    test_set,
                                    data_mean,
                                    data_std,
                                    dim_to_ignore,
                                    to_euler=False)
-    srnn_gts_euler = get_srnn_gts(actions, model, test_set, data_mean,
+    srnn_gts_euler = get_srnn_gts(actions, model, device, test_set, data_mean,
                                   data_std, dim_to_ignore)
 
     # Clean and create a new h5 file of samples

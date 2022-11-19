@@ -1,9 +1,12 @@
 """Code for animation the motion prediction."""
 
 import logging
+import sys
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import imageio
 import h5py
 
 IN_COLAB = 'google.colab' in sys.modules
@@ -18,6 +21,34 @@ else:
     from src.utils.forward_kinematics import kinematic_tree_variables
     from src.utils.forward_kinematics import revert_coordinate_space
     from src.utils.forward_kinematics import fkl
+
+
+def create_gif(input_dir, output_dir, filename='animation.gif'):
+    """Create a gif from the frames.
+    
+    Parameters
+    ----------
+    input_dir : str
+        Directory where the frames are.
+    output_dir : str
+        Directory where the gif will be saved.
+    filename : str
+        The name of the output file.
+    """
+
+    # Load all the frames
+    images = []
+    for file_name in os.listdir(input_dir):
+        if file_name.endswith('.png'):
+            file_path = os.path.join(input_dir, file_name)
+            images.append(imageio.imread(file_path))
+
+    # Make a pause at the end
+    for _ in range(10):
+        images.append(imageio.imread(file_path))
+
+    # Save them as frames into a gif
+    imageio.mimsave(os.path.join(output_dir, filename), images, duration=0.03)
 
 
 def animate(args):

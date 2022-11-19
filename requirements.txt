@@ -1,4 +1,5 @@
 matplotlib
+imageio
 numpy
 h5py
 torch
