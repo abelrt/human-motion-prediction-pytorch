@@ -1,5 +1,7 @@
 """Script to evaluate batches of predictions."""
 
+import sys
+
 import numpy as np
 
 IN_COLAB = 'google.colab' in sys.modules

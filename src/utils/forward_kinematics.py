@@ -1,6 +1,7 @@
 """Script with functions to compute kinematics."""
 
 import copy
+import sys
 
 import numpy as np
 
