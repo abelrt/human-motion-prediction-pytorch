@@ -101,7 +101,7 @@ class MotionPredictor(nn.Module):
         possible_path_number = 10
 
         for path in range(possible_path_number):
-            state += torch.rndn(state.shape)
+            input_state += torch.randn(state.shape)
             outputs = []
             prev = None
             # Decoding, sequentially
@@ -111,11 +111,11 @@ class MotionPredictor(nn.Module):
                     inp = loop_function(prev, i)
                 #inp = inp.detach()
 
-                state = self.cell(inp, state)
+                input_state = self.cell(inp, input_state)
 
                 # Output is seen as a residual to the previous value
                 output = inp + self.fc1(
-                    F.dropout(state, self.dropout, training=self.training))
+                    F.dropout(input_state, self.dropout, training=self.training))
                 outputs.append(output.view([1, batch_size, self.input_size]))
                 prev = output
             
