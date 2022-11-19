@@ -1,6 +1,8 @@
 # Extras
 *.h5
+animation.gif
 data/
+images/
 experiments/
 
 # Byte-compiled / optimized / DLL files
