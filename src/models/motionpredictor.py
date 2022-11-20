@@ -22,7 +22,7 @@ class MotionPredictor(nn.Module):
             number_of_actions,
             dropout=0.3):
         """Constructor of the class.
-        
+
         Parameters
         ----------
         source_seq_len: int
@@ -38,7 +38,7 @@ class MotionPredictor(nn.Module):
             for decoding.
         learning_rate: float
             Learning rate to start with.
-        learning_rate_decay_factor: 
+        learning_rate_decay_factor:
             Decay learning rate by this much when needed.
         number_of_actions: int
             Number of classes we have.
@@ -71,7 +71,7 @@ class MotionPredictor(nn.Module):
             The input to the decoder.
         device : torch.device
             The device on which to do the computation.
-        
+
         Returns
         -------
         outputs : torch.Tensor
@@ -94,7 +94,7 @@ class MotionPredictor(nn.Module):
             state = self.cell(encoder_inputs[i], state)
 
             # Apply dropout in training
-            state = F.dropout(state, self.dropout, training=self.training)
+            state = F.dropout(state, self.dropout, training=self.training)  #NOISE
 
         outputs = []
         prev = None
@@ -109,8 +109,7 @@ class MotionPredictor(nn.Module):
             state = self.cell(inp, state)
 
             # Output is seen as a residual to the previous value
-            output = inp + self.fc1(
-                F.dropout(state, self.dropout, training=self.training))
+            output = inp + self.fc1(F.dropout(state, self.dropout, training=self.training)) #NOISE INSERTION
             outputs.append(output.view([1, batch_size, self.input_size]))
             prev = output
 
@@ -124,7 +123,7 @@ class MotionPredictor(nn.Module):
     def get_batch(self, data, actions, device):
         """Get a random batch of data from the specified bucket, prepare
         for step.
-        
+
         Parameters
         ----------
         data:
@@ -133,7 +132,7 @@ class MotionPredictor(nn.Module):
             A list of the actions we are using
         device:
             The device on which to do the computation (cpu/gpu)
-        
+
         Returns
         -------
         encoder_inputs : torch.Tensor
@@ -194,7 +193,7 @@ class MotionPredictor(nn.Module):
 
     def find_indices_srnn(self, data, action):
         """Find the same action indices as in SRNN.
-        
+
         See https://github.com/asheshjain399/RNNexp/blob/master/structural_rnn/CRFProblems/H3.6m/processdata.py#L325
 
         Parameters
@@ -203,7 +202,7 @@ class MotionPredictor(nn.Module):
             A list of sequences.
         action:
             The action.
-        
+
         Returns
         -------
         idx : list
@@ -248,7 +247,7 @@ class MotionPredictor(nn.Module):
             v=nxd matrix with a sequence of poses.
         action: str
             The action to load data from, e.g. 'walking'.
-        
+
         Returns
         -------
         encoder_inputs : torch.Tensor
