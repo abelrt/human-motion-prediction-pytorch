@@ -11,8 +11,11 @@ class GeneratorRNN(nn.Module):
 	"""Sequence-to-sequence model for human motion prediction"""
 	def __init__(self,source_seq_len,target_seq_len,
 		rnn_size, # recurrent layer hidden size
-		batch_size,learning_rate,learning_rate_decay_factor,
-		number_of_actions,dropout=0.3):
+		batch_size,
+		learning_rate,
+		learning_rate_decay_factor,
+		number_of_actions,
+		dropout=0.3):
 
 		"""Args:
 		source_seq_len: length of the input sequence.
@@ -41,10 +44,11 @@ class GeneratorRNN(nn.Module):
 		self.cell           = torch.nn.GRUCell(self.input_size, self.rnn_size)
 		self.fc1            = nn.Linear(self.rnn_size, self.input_size)
 
-	# Forward pass
+	# === FORWARD PASS ===
+	# Parts: encoder_inputs (PAST DATA), decoder_inputs(Target_Value/FUTURE DATA to learn from)
 	def forward(self, encoder_inputs, decoder_inputs, device):
 		def loop_function(prev, i):
-			return prev
+			return prev # Return Prev. State of Prediction
 
 		batch_size     = encoder_inputs.shape[0]
 		# To pass these data through a RNN we need to switch the first two dimensions
@@ -54,30 +58,38 @@ class GeneratorRNN(nn.Module):
 
 		# Encoding
 		for i in range(self.source_seq_len-1):
-			# Apply the RNN cell
+			# Apply the RNN (GRUcell)
 			state = self.cell(encoder_inputs[i], state)
 			# Apply dropout in training
-			state = F.dropout(state, self.dropout, training=self.training)
+			state = F.dropout(state, self.dropout, training=self.training) # NOISE REQUIRED HERE - Exit of encoder  
 
 		outputs = []
 		prev    = None
-		z = torch.rand(state.shape).to(device)
-		state = state + z
-	# Decoding, sequentially
+
+		# # NOISE added to Z space
+		# z = torch.rand(state.shape).to(device)
+		# state = state + z
+
+	# Decoding, sequentially (GENERATOR)
 		for i, inp in enumerate(decoder_inputs):
 			# Use teacher forcing?
 			if prev is not None:
-				inp = loop_function(prev, i)
+				inp = loop_function(prev, i) # Purpose: to modify the input (inp) based on the previous output and the current iteration.
 			#inp = inp.detach()
 
 			state  = self.cell(inp, state)
+
 			# Output is seen as a residual to the previous value
-			output = inp + self.fc1(F.dropout(state,self.dropout,training=self.training))
+			output = inp + self.fc1(F.dropout(state,self.dropout,training=self.training)) # NOISE INSERTION
 			outputs.append(output.view([1, batch_size, self.input_size]))
 			prev = output
+
 		outputs = torch.cat(outputs, 0)
+
 		# Size should be batch_size x target_seq_len x input_size
-		return torch.transpose(outputs, 0, 1)
+		outputs = torch.transpose(outputs, 0, 1)
+
+		return outputs
 
 
 	def get_batch( self, data, actions, device):
@@ -116,6 +128,7 @@ class GeneratorRNN(nn.Module):
 		encoder_inputs  = torch.tensor(encoder_inputs).float().to(device)
 		decoder_inputs  = torch.tensor(decoder_inputs).float().to(device)
 		decoder_outputs = torch.tensor(decoder_outputs).float().to(device)
+
 		return encoder_inputs, decoder_inputs, decoder_outputs
 
 
@@ -166,8 +179,8 @@ class GeneratorRNN(nn.Module):
 		"takingphoto", "waiting", "walking", "walkingdog", "walkingtogether"]
 
 		if not action in actions:
-		  raise ValueError("Unrecognized action {0}".format(action))
-
+			raise ValueError("Unrecognized action {0}".format(action))
+		  
 		frames = {}
 		frames[action] = self.find_indices_srnn( data, action )
 
