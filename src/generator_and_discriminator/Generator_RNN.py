@@ -66,9 +66,9 @@ class GeneratorRNN(nn.Module):
 		outputs = []
 		prev    = None
 
-		# # NOISE added to Z space
-		# z = torch.rand(state.shape).to(device)
-		# state = state + z
+		# NOISE added to Z space
+		z = torch.rand(state.shape).to(device)
+		state = state + z
 
 	# Decoding, sequentially (GENERATOR)
 		for i, inp in enumerate(decoder_inputs):
